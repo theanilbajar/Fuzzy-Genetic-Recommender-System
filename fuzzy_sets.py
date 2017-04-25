@@ -1,26 +1,27 @@
 class Age:
     def young(self, age):
-        if age < 20:
+        if age < 20.0:
             return 1.0
-        elif age >= 20 and age < 35:
-            return float((35-age)/15)
+        elif age >= 20.0 and age < 35.0:
+            return float((35-age)/15.0)
         else:
             return 0.0
         
     def middle(self, age):
-        if age < 20:
+        if age <= 20 or age > 60:
             return 0.0
-        elif age >= 20 and age < 35:
+        elif age > 20 and age <= 35:
             return (float(age-20)/15)
-        elif age >=35 and age <45:
+        elif age >35 and age <=45:
             return 1.0
-        else:
-            return 0.0
+        elif age > 45 and age <= 60:
+            return ((60-age)/15.0)
+        
     def old(self, age):
-        if age<45:
+        if age <= 45:
             return 0.0
-        elif age >= 45 and age < 60:
-            return (float(60-age)/15)
+        elif age > 45 and age <= 60:
+            return ((age-45.0)/15)
         else:
             return 1.0
 
@@ -54,5 +55,3 @@ class GIM:
 			return 0.0
 		else:
 			return (gim-4.0)
-
-
