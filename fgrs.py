@@ -16,9 +16,9 @@ items = pd.read_csv('ml-100k/u.item', sep='|', names=i_cols,
 #All in one DataFrame
 df1 = pd.merge(users, ratings, on='user_id')
 df = pd.merge(df1, items, on='movie_id')
-#Most rated movies till rated movies > 60
-most_rated_movies = df.groupby('movie_title').size().sort_values(ascending=False)[:497]
+#Users who has rated movies atleast 60 movies
 top_users = df.groupby('user_id').size().sort_values(ascending=False)[:497]
+
 #active_users and training_users - pd.Series()
 active_users = top_users.sample(frac=(50/497.0))
 training_users = top_users.drop(active_users.index)
@@ -40,8 +40,6 @@ for i in tu_ages:
     x =  [i, a.young(i), a.middle(i), a.old(i)]
     tu_fuzzy_ages.loc[j] = x
     j = j+1
-print tu_fuzzy_ages.shape, tu_fuzzy_ages
-
 g = GIM()
 print 'GIM Example for value gim = 3.5:', g.very_bad(3.5), g.bad(3.5), g.average(3.5), g.good(3.5), g.very_good(3.5), g.excellent(3.5) 
 #Example of fuzzy distance between two age 18 and 23 and their fuzzy
@@ -49,3 +47,33 @@ x = [g.very_bad(3.5), g.bad(3.5), g.average(3.5), g.good(3.5), g.very_good(3.5),
 y = [g.very_bad(2.5), g.bad(2.5), g.average(2.5), g.good(2.5), g.very_good(2.5), g.excellent(2.5)]
 print x, y
 print "Fuzzy distance between gim 3.5 and 2.5: ", fuzzy_dist(2.5, 3.5, np.array(x), np.array(y))
+
+#Gim for active users:
+def tr(i):
+    count = df.loc[df['user_id']==i]
+    total=0
+    for k in count['rating']:
+        total = total + k 
+    return total
+#Genre rating of Genre Gj for user ui.
+def gr(j):
+    gr1 = 0
+    for i in range(0,19):
+        print j['Action']
+
+def gim_final(i,j):
+    #get movies rated by user ui
+    user_ui_movies = df.loc[df['user_id']==i]
+    tf = user_ui_movies.shape[0]
+    print tf
+    tr = 0
+    for k in user_ui_movies['rating']:
+        tr = tr + k
+    
+    gr_array = np.zeros((tf, 19))
+    k=0
+    for movie in user_ui_movies['movie_id']:
+        gr_array[k] = gr(movie)
+        k = k+1
+    
+print gim_final(11, 1)
