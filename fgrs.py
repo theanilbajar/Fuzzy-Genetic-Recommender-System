@@ -1,5 +1,8 @@
+import load_data
 import pandas as pd
 import numpy as np
+from fuzzy_sets import Age, GIM
+import gim
 a = Age()
 g = GIM()
 def eucledian(A,B):
