@@ -6,7 +6,7 @@ import gim
 a = Age()
 g = GIM()
 def eucledian(A,B):
-    return np.linalg.norm(A-B)
+    return np.linalg.norm(np.array(A)-np.array(B))
 
 def fuzzy_dist(a, b, A, B):
     return abs(a-b)*eucledian(A,B)
