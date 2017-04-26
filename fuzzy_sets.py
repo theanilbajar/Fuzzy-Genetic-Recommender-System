@@ -26,32 +26,33 @@ class Age:
             return 1.0
 
 class GIM:
+    def very_bad(self, gim):
+        if gim <= 1.0:
+            return 1.0
+        else:
+            return 0.0
 
-	def very_bad(self, gim):
-		if gim <= 1.0:
-			return 1.0
-		else:
-			return 0.0
+    def gim_a(self, gim, i):
+        if gim <= i-2 or gim > i:
+            return 0.0
+        elif gim > i-2 and gim <= i-1:
+            return (gim-i+2.0)
+        elif gim > i-1 and gim <= i:
+            return float(i-gim)
 
-	def gim_a(self, gim, i):
-		if gim <= i-2 or gim > i:
-			return 0.0
-		elif gim > i-2 and gim <= i-1:
-			return (gim-i+2.0)
-		elif gim > i-1 and gim <= i:
-			return float(i-gim)
-	
-	def bad(self, gim):
-		return self.gim_a(gim, 2.0)
-	def average(self, gim):
-		return self.gim_a(gim, 3.0)
-	def good(self, gim):
-		return self.gim_a(gim, 4.0)
-	def very_good(self, gim):
-		return self.gim_a(gim, 5.0)
+    def bad(self, gim):
+        return self.gim_a(gim, 2.0)
+    def average(self, gim):
+        return self.gim_a(gim, 3.0)
+    def good(self, gim):
+        return self.gim_a(gim, 4.0)
+    def very_good(self, gim):
+        return self.gim_a(gim, 5.0)
 
-	def excellent(self, gim):
-		if gim <=4.0:
-			return 0.0
-		else:
-			return (gim-4.0)
+    def excellent(self, gim):
+        if gim <=4.0:
+            return 0.0
+        else:
+            return (gim-4.0)
+
+
