@@ -4,13 +4,10 @@
 import pandas as pd
 import numpy as np
 
+from settings import NO_OF_GENRES, NO_OF_FEATURES
 import load_data
 import fuzzy_sets
 import gim
-
-# Constants
-NO_OF_FEATURES = 21
-NO_OF_GENRES = 19
 
 # Create objects for Age and GIM to use for fuzzy sets
 age = fuzzy_sets.Age()
