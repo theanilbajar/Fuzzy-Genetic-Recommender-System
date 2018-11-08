@@ -1,88 +1,116 @@
-import load_data
+""""""
+
+# Import pandas and numpy
 import pandas as pd
 import numpy as np
-from fuzzy_sets import Age, GIM
-import gim
-a = Age()
-g = GIM()
-def eucledian(A,B):
-    return np.linalg.norm(np.array(A)-np.array(B))
 
-def fuzzy_dist(a, b, A, B):
-    return abs(a-b)*eucledian(A,B)
+import load_data
+import fuzzy_sets
+import gim
+
+# Constants
+NO_OF_FEATURES = 21
+NO_OF_GENRES = 19
+
+# Create objects for Age and GIM to use for fuzzy sets
+age = fuzzy_sets.Age()
+gim_obj = fuzzy_sets.GIM()
+
+
+def euclidean_dist(list_a, list_b):
+    """Return the Euclidean distance between two array elements."""
+    return np.linalg.norm(np.array(list_a) - np.array(list_b))
+
+
+def fuzzy_dist(first_point, second_point, fuzzy_set_first_point, fuzzy_set_second_point):
+    """Returns fuzzy distance between two values and their fuzzy sets."""
+    return abs(first_point - second_point) * euclidean_dist(fuzzy_set_first_point, fuzzy_set_second_point)
+
 
 def fuzzy_distance(ui, uj):
-    fuzzy_dis = [0]*21
-    for i in range(0,19):
-        ui_gim = [g.very_bad(ui[i]), g.bad(ui[i]), g.average(ui[i]), g.good(ui[i]), g.very_good(ui[i]), g.excellent(ui[i])]
-        uj_gim = [g.very_bad(uj[i]), g.bad(uj[i]), g.average(uj[i]), g.good(uj[i]), g.very_good(uj[i]), g.excellent(uj[i])]
+    """Returns fuzzy distance between given points."""
+
+    fuzzy_dis = [0] * NO_OF_FEATURES
+
+    # Get fuzzy set values for movie genres
+    for i in range(0, NO_OF_GENRES):
+        ui_gim = gim_obj.get_fuzzy_set(ui[i])
+        uj_gim = gim_obj.get_fuzzy_set(uj[i])
         fuzzy_dis[i] = fuzzy_dist(ui[i], uj[i], ui_gim, uj_gim)
-    
-    ui_gim = [a.young(ui[i]), a.middle(ui[i]), a.old(ui[i])]
-    uj_gim = [a.young(uj[i]), a.middle(uj[i]), a.old(uj[i])]
+
+    # Get fuzzy set values for age
+    ui_gim = age.get_fuzzy_set(ui[i])
+    uj_gim = age.get_fuzzy_set(uj[i])
     fuzzy_dis[i] = fuzzy_dist(ui[i], uj[i], ui_gim, uj_gim)
     return fuzzy_dis
 
-#print fuzzy_dist(35, 40, np.array([3, 4 ,5]), np.array([4, 5, 6]))
-#Data Details
-#users_cols ='user_id', 'age', 'sex', 'occupation', 'zip_code'
-#ratings_cols = 'user_id', 'movie_id', 'rating', 'unix_timestamp'
-#i_cols = ['movie_id', 'movie_title' ,'release date','video release date', 'IMDb URL', 'unknown', 'Action', 'Adventure',
+
+def model_for_users(users_data):
+    """Create model for given users data i.e. merged movies, items, and users
+
+    Args:
+        users_data: DataFrame of merged movies, items, and users based on movie_id
+    """
+
+    i = 0
+    model_data_for_users = pd.DataFrame(columns=m_cols)
+
+    for key, value in users_data.iterrows():
+        # Get user movies based on user
+        user_movies = df.loc[df['user_id'] == value['user_id']]
+
+        # Get feature list for all movies of one user
+        feature_array = gim.gim_final(user_movies, value['user_id'])
+        feature_array[NO_OF_GENRES] = value['age']
+        feature_array[NO_OF_GENRES + 1] = value['user_id']
+
+        # Save current feature values in model data
+        model_data_for_users.loc[i] = feature_array
+        i = i + 1
+    return model_data_for_users
+
+
+# users_cols ='user_id', 'age', 'sex', 'occupation', 'zip_code'
+# ratings_cols = 'user_id', 'movie_id', 'rating', 'unix_timestamp'
+# i_cols = ['movie_id', 'movie_title' ,'release date','video release date', 'IMDb URL', 'unknown', 'Action', 'Adventure',
 # 'Animation', 'Children\'s', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy',
 # 'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western']
-#All in one DataFrame
-mr_ur = pd.merge(load_data.users, load_data.ratings, on='user_id')
-df = pd.merge(mr_ur, load_data.items, on='movie_id')
+# All in one DataFrame
+# mr_ur = pd.merge(load_data.users, load_data.ratings, on='user_id')
+df = pd.merge(load_data.mr_ur, load_data.items, on='movie_id')
 m_cols = ['unknown', 'Action', 'Adventure',
-     'Animation', 'Children\'s', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy',
-     'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western', 'age', 'user_id']
-model_data_au = pd.DataFrame(columns=m_cols)
-feature_row = pd.DataFrame(columns=m_cols)
-model_data_pu = pd.DataFrame(columns=m_cols)
-#Users who has rated movies atleast 60 movies
+          'Animation', 'Children\'s', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy',
+          'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western', 'age',
+          'user_id']
+model_data_active_users = pd.DataFrame(columns=m_cols)
+model_data_passive_users = pd.DataFrame(columns=m_cols)
+
+# Users who has rated movies at least 60 movies
 top_users = load_data.df.groupby('user_id').size().sort_values(ascending=False)[:497]
-    
-for i in range(0,5):
-    #active_users and passive_users - pd.Series()
+
+for i in range(0, 5):
+
+    # Get active_users and passive_users from top_users
     active_users = top_users.sample(frac=0.10)
     training_active_users = active_users.sample(frac=0.34)
     testing_active_users = active_users.drop(training_active_users.index)
     passive_users = top_users.drop(active_users.index)
-    
-    tau_data = df.loc[df['user_id'].isin(training_active_users)][:10]
-    index = np.arange(0,tau_data.shape[0])
-    i=0
-    for key, value in tau_data.iterrows():
-        user_ui_movies = df.loc[df['user_id']==value['user_id']]
-        
-        feature_array = gim.gim_final(user_ui_movies, value['user_id'])
-        #print 'GIM array', feature_array
-        feature_array[19], feature_array[20] = value['age'], value['user_id']
-        #print feature_array.shape
-        model_data_au.loc[i] = feature_array
-        i = i+1
-    #print model_data_au
-    #print model_data_au
-    #Working with passive users
-    i=0    
-    pu_data = df.loc[df['user_id'].isin(passive_users)][:10]
-    
-    for key, value in pu_data.iterrows():
-        user_ui_movies = df.loc[df['user_id']==value['user_id']]
-        feature_array_p = gim.gim_final(user_ui_movies, value['user_id'])
-        #print 'GIM array', feature_array
-        feature_array_p[19], feature_array_p[20] = value['age'], value['user_id']
-        #print feature_array.shape
-        model_data_pu.loc[i] = feature_array_p
-        i = i+1
-    #print model_data_au
-    #print model_data_pu
-    
+
+    # Get active and passive users' data from merged movies, items, and users
+    top_active_users_data = df.loc[df['user_id'].isin(training_active_users)][:10]
+    passive_users_data = df.loc[df['user_id'].isin(passive_users)][:10]
+    # index = np.arange(0, top_active_users_data.shape[0])
+
+    # Get model for active users
+    model_data_active_users = model_for_users(top_active_users_data)
+
+    # Get model for passive users
+    model_data_passive_users = model_for_users(passive_users_data)
+
     fuzzy_df = pd.DataFrame(columns=m_cols)
-    for key, value in model_data_au.iterrows():
-        i=0
-        for key1, value1 in model_data_pu.iterrows():
-            fuzzy_df.loc[i] = fuzzy_distance(value, values1)
-            #print value[i], value1[i]
-            i = i+1
-    print 'Fuzzy Distanse between users: ',fuzzy_df
+    for key, value in model_data_active_users.iterrows():
+        i = 0
+        for key_p, value_p in model_data_passive_users.iterrows():
+            fuzzy_df.loc[i] = fuzzy_distance(value, value_p)
+            i = i + 1
+    print('Fuzzy Distanse between users: ', fuzzy_df)
