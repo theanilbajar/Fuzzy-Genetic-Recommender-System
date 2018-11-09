@@ -15,6 +15,8 @@ i_cols = ['movie_id', 'movie_title' ,'release date','video release date', 'IMDb 
 items = pd.read_csv('ml-100k/u.item', sep='|', names=i_cols,
  encoding='latin-1')
 
-# All in one DataFrame
-mr_ur = pd.merge(users, ratings, on='user_id')
-df = pd.merge(mr_ur, items, on='movie_id')
+# Merge users and ratings on user_id
+movies_users_ratings = pd.merge(users, ratings, on='user_id')
+
+# Merge movies_users_ratings and items on movie_id
+items_merged = pd.merge(movies_users_ratings, items, on='movie_id')
