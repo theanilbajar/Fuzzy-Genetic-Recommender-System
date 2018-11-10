@@ -2,5 +2,9 @@
 
 implementation of [Fuzzy-genetic approach to recommender systems based on a novel hybrid user model](http://www.sciencedirect.com/science/article/pii/S095741740700351X) using python and some libraries like pandas, numpy.
 
-Sources: [MovieLens 100K dataset](http://grouplens.org/datasets/movielens/100k/)
+# Requirements(tested on)
+Python 3.6.6
+numpy==1.15.4
+pandas==0.23.4
 
+Sources: [MovieLens 100K dataset](http://grouplens.org/datasets/movielens/100k/)
